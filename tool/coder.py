@@ -1,0 +1,43 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Oct 26 15:35:19 2024
+
+@author: BM109X32G-10GPU-02
+"""
+
+from langchain_community.embeddings import OllamaEmbeddings
+from langchain.tools import BaseTool
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
+from langchain.base_language import BaseLanguageModel
+
+
+class codewriter(BaseTool):
+    name:str = "codewriter"
+    description:str = (
+        "Useful to answer questions that require writing codes "
+        "return the usage and instruction of codes"
+    )
+
+    llm: BaseLanguageModel = None
+    def __init__(self):
+        super().__init__()
+        self.llm =ChatOpenAI(model="gpt-4o-2024-11-20",api_key='sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik',
+             base_url="https://www.dmxapi.com/v1")
+        # api keys
+
+    def _run(self, query) -> str:
+        messages = [
+            SystemMessage(content="You are an expert at writing code, write the corresponding code based on the inputs"),
+            HumanMessage(content=query),
+        ]
+        
+        response =  self.llm.invoke(messages)
+        return response
+
+    async def _arun(self, query) -> str:
+        """Use the tool asynchronously."""
+        raise NotImplementedError("this tool does not support async")
+        
+
+ 
