@@ -6,26 +6,20 @@ Created on Mon Sep  4 10:38:59 2023
 """
 
 
-from sklearn.metrics import confusion_matrix
-import matplotlib.pyplot as plt
+
 import numpy as np
 from rdkit.Chem import AllChem
-from sklearn.datasets import make_blobs
-import json
-import numpy as np
-import math
+ 
+ 
 import pickle
-from scipy import sparse
-from sklearn.metrics import median_absolute_error,r2_score, mean_absolute_error,mean_squared_error
  
 from tqdm import tqdm
 
-import pandas as pd
-import matplotlib.pyplot as plt
+ 
 from rdkit import Chem
 
 from sklearn.ensemble import RandomForestRegressor
-
+ 
 def split_dataset(dataset, ratio):
     """Shuffle and split a dataset."""
    # np.random.seed(111)  # fix the seed for shuffle.

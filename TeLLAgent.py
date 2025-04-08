@@ -106,10 +106,10 @@ class TeLLAgent:
                 tools,
                 suffix=SUFFIX,
                 format_instructions=FORMAT_INSTRUCTIONS,
-                question_prompt=QUESTION_PROMPT,return_intermediate_steps=True ,handle_parsing_errors=True 
+                question_prompt=QUESTION_PROMPT, handle_parsing_errors=True 
             ),
             verbose=True,
-            max_iterations=max_iterations , return_intermediate_steps=True  ,handle_parsing_errors=True  
+            max_iterations=max_iterations, handle_parsing_errors=True  
         )
  
 
@@ -122,12 +122,11 @@ class TeLLAgent:
         else: 
             prompt = str(' ' + outputs["input"] + ' ' + outputs["intermediate_steps"][0][0].log.split('Action:')[0])
             outputs = self.agent_executor2.invoke( {"input": prompt})
-        return outputs 
+        return outputs['output'] 
     
 if __name__ == '__main__':
-        chem_model = TeLLAgent( temp=0.1, streaming=  True,
+        agent = TeLLAgent( temp=0.1, streaming=  True,
                            openai_api_key =r'sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik', 
-                           image_path= r"C:\Users\BM109X32G-10GPU-02\Desktop\acceptor\1.png" ,file_path = r"..." )
-       # A = chem_model.run(r"""who are you""")
-       # A = chem_model.run(r"""I want to know some basic chemical properties, HOMO /LUMO and PCE values of molecules  CC(C)CCCC(C)CCC1=C(/C=C\2/C(=C(C#N)C#N)C3=C(C=C(C(=C3)F)F)C2=O)SC4=C1N(CCC(C)CCCC(C)C)C5=C4C6=NSN=C6C7=C5N(CCC(C)CCCC(C)C)C8=C7SC(=C8CCC(C)CCCC(C)C)/C=C\9/C(=C(C#N)C#N)C%10=C(C=C(C(=C%10)F)F)C9=O""")
-        a  = chem_model.run(r""" Compare the PCE and similarity of acceptor Y6 and acceptor in image""")
+                           image_path= r"..." ,file_path = r"..." )
+        A = agent.run(r"""who are you""")
+        

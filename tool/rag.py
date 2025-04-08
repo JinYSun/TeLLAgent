@@ -38,7 +38,7 @@ device = f'cuda:{cuda.current_device()}' if cuda.is_available() else 'cpu'
 from langchain_openai import OpenAIEmbeddings 
 embeddings = OpenAIEmbeddings(api_key='sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik',
       base_url="https://www.dmxapi.com/v1")
-vectorstore=FAISS.load_local(r"J:\libray\osc\tool\rag", embeddings,allow_dangerous_deserialization =True)   
+vectorstore=FAISS.load_local(r"tool\rag", embeddings,allow_dangerous_deserialization =True)   
 
  
 template = """
