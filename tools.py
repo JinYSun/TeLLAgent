@@ -17,7 +17,7 @@ def make_tools(llm: BaseLanguageModel, api_keys: dict = {}, verbose=True,  image
     semantic_scholar_api_key = api_keys.get("SEMANTIC_SCHOLAR_API_KEY") or os.getenv(
         "SEMANTIC_SCHOLAR_API_KEY"
     )
-    serp_api_key = '3795acda6a74ea15033d34b54eac82982b26f559147d9cf04aca4bfca91c3e9d'
+    
     all_tools = agents.load_tools(
         [
             #"python_repl",
@@ -28,10 +28,10 @@ def make_tools(llm: BaseLanguageModel, api_keys: dict = {}, verbose=True,  image
     )
 
     all_tools += [
-       # browseruse(),
+       # browseruse(openai_api_key),
         
-        rag(),
-        codewriter(),
+        rag(openai_api_key),
+        codewriter(openai_api_key),
         graphconverter(),
         Query2SMILES(chemspace_api_key),
         Mol2SMILES(chemspace_api_key) ,
@@ -60,13 +60,13 @@ def make_tools(llm: BaseLanguageModel, api_keys: dict = {}, verbose=True,  image
     ]
         
     if serp_api_key:
-        all_tools += [WebSearch(serp_api_key)
+        all_tools += [WebSearch(serp_api_key, openai_api_key)
     ]
     if image_path is not None:
-            all_tools += [Imageanalysis(image_path),
+            all_tools += [Imageanalysis(image_path, openai_api_key),
         ]   
     if file_path is not None:
-            all_tools += [pdfreader(file_path),
+            all_tools += [pdfreader(file_path, openai_api_key),
         ]               
  
     return all_tools

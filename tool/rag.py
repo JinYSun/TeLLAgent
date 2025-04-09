@@ -36,9 +36,8 @@ from langchain.vectorstores import FAISS
 from torch import cuda, bfloat16
 device = f'cuda:{cuda.current_device()}' if cuda.is_available() else 'cpu'
 from langchain_openai import OpenAIEmbeddings 
-embeddings = OpenAIEmbeddings(api_key='sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik',
-      base_url="https://www.dmxapi.com/v1")
-vectorstore=FAISS.load_local(r"tool\rag", embeddings,allow_dangerous_deserialization =True)   
+
+ 
 
  
 template = """
@@ -67,19 +66,23 @@ class rag(BaseTool):
         "Input query , return the response"
          
     )
-    
+    openai_api_key: str = None
     llm: BaseLanguageModel = None
-    path : str = None 
+  
     
-    def __init__(self, path: str = None):
+    def __init__(self,  openai_api_key):
         super().__init__(  )
-        self.llm = ChatOpenAI(model="gpt-4o-2024-11-20",api_key='sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik',
-             base_url="https://www.dmxapi.com/v1")
-        self.path = path
+         
         # api keys
-
+        self.openai_api_key = openai_api_key
+        self.llm = ChatOpenAI(model="gpt-4o-2024-11-20",api_key=self.openai_api_key,
+             base_url="https://www.dmxapi.com/v1")
+        
     def _run(self, query ) -> str:
-       
+        embeddings = OpenAIEmbeddings(api_key=self.openai_api_key,
+              base_url="https://www.dmxapi.com/v1")
+        
+        vectorstore=FAISS.load_local(r"tool/rag", embeddings,allow_dangerous_deserialization =True)  
         prompt = PromptTemplate(template=template, input_variables=[ "question"])
         qa_chain = RetrievalQA.from_chain_type(
             llm=self.llm,

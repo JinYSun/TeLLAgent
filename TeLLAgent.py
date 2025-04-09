@@ -20,7 +20,7 @@ from PIL import Image
 from langchain_openai import ChatOpenAI , OpenAI
 from langchain.agents import load_tools, initialize_agent, AgentType
 from langchain.llms import OpenAI
-
+import json
 
 def convert_to_base64(pil_image):
     buffered = BytesIO()
@@ -35,16 +35,16 @@ def _make_llm(model, temp, api_key, streaming: bool = False):
        model_name=model,
 max_tokens = 5000,
        openai_api_key=api_key,
-       base_url="https://www.dmxapi.com/v1"
+     
    )
     elif model.startswith("gpt") or model.startswith("deepseek"):
         llm = ChatOpenAI(model=model,
             temperature = 0.1,
             
             timeout=1000,
-            
+            base_url="https://www.dmxapi.com/v1",
             callbacks=[StreamingStdOutCallbackHandler()],
-            openai_api_key=api_key,base_url="https://www.dmxapi.com/v1"
+            openai_api_key=api_key, 
             )
     elif model.startswith("llama") :
             llm = OllamaLLM(model=model,
@@ -53,14 +53,14 @@ max_tokens = 5000,
     else:
         raise ValueError(f"Invalid model name: {model}")
     return llm
-
+ 
 
 class TeLLAgent:
     def __init__(
         self,
         tools=None,
         model1: str = "deepseek-ai/DeepSeek-R1",
-        model2: str = "gpt-4o-2024-11-20",
+        model2: str = "deepseek-ai/DeepSeek-V3",
         tools_model="gpt-4o-2024-11-20",
         temp=0.1,
         max_iterations=50,
@@ -82,7 +82,7 @@ class TeLLAgent:
             raise ValueError("Invalid OpenAI API key")
 
         if tools is None:
-            api_keys["OPENAI_API_KEY"] = 'sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik'
+            api_keys["OPENAI_API_KEY"] = openai_api_key
             tools_llm = _make_llm(tools_model, temp, openai_api_key, streaming)
             tools = make_tools(tools_llm, api_keys=api_keys, verbose=verbose, image_path = image_path, file_path = file_path)
  
@@ -117,7 +117,7 @@ class TeLLAgent:
         prompt = prompt + ' ' + str(self.file_path) + ' ' + str(self.image_path)
         outputs = self.agent_executor1.invoke( {"input": prompt})
         if outputs["intermediate_steps"] ==[]:
-            prompt = str(' ' +outputs["input"]+ ' ' + outputs["output"].split('Action:')[0] )
+            prompt = str(' ' +outputs["input"]+ ' ' + outputs["output"].split('Action:')[0].split('Final Answer:')[0] )
             outputs = self.agent_executor2.invoke( {"input":prompt })            
         else: 
             prompt = str(' ' + outputs["input"] + ' ' + outputs["intermediate_steps"][0][0].log.split('Action:')[0])
@@ -126,7 +126,7 @@ class TeLLAgent:
     
 if __name__ == '__main__':
         agent = TeLLAgent( temp=0.1, streaming=  True,
-                           openai_api_key =r'sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik', 
+                           openai_api_key ='sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik',
                            image_path= r"..." ,file_path = r"..." )
-        A = agent.run(r"""who are you""")
+        A = agent.run(r"""Predict the PCE OF Donor PM6""")
         

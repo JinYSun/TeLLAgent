@@ -121,10 +121,10 @@ class LiteratureSearch(BaseTool):
         """Use the tool asynchronously."""
         raise NotImplementedError("this tool does not support async")
 
-def web_search(keywords, search_engine="google"):
+def web_search(keywords, serp_api_key, search_engine="google"):
     try:
         return SerpAPIWrapper(
-            serpapi_api_key='3795acda6a74ea15033d34b54eac82982b26f559147d9cf04aca4bfca91c3e9d', search_engine=search_engine
+            serpapi_api_key=serp_api_key, search_engine=search_engine
         ).run(keywords)
     except:
         return "No results, try another search"
@@ -147,7 +147,7 @@ class WebSearch(BaseTool):
             return (
                 "No SerpAPI key found. This tool may not be used without a SerpAPI key."
             )
-        return web_search(query)
+        return web_search(query, serp_api_key = self.serp_api_key)
 
     async def _arun(self, query: str) -> str:
         raise NotImplementedError("Async not implemented")

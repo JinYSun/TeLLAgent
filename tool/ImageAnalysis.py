@@ -33,14 +33,15 @@ class Imageanalysis(BaseTool):
    
     llm: BaseLanguageModel = None
     path : str = None 
-    
-    def __init__(self, path):
+    openai_api_key: str = None
+    def __init__(self, path, openai_api_key):
         super().__init__(  )
-        self.llm = ChatOpenAI(model="gpt-4o-2024-11-20",api_key='sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik',
+        self.openai_api_key = openai_api_key
+        self.llm = ChatOpenAI(model="gpt-4o-2024-11-20",api_key=self.openai_api_key,
              base_url="https://www.dmxapi.com/v1")
         self.path = path
         # api keys
-
+        
     def _run(self, query ) -> str:
         try:
             pil_image = Image.open(self.path)

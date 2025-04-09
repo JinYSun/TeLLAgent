@@ -47,13 +47,16 @@ class pdfreader(BaseTool):
     llm: BaseLanguageModel = None
     path : str = None 
     return_direct: bool = True
-    def __init__(self, path: str = None):
+    openai_api_key: str = None
+    
+    def __init__(self, path , openai_api_key):
         super().__init__(  )
-        self.llm =  ChatOpenAI(model="gpt-4o-2024-11-20",api_key='sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik',
-             base_url="https://www.dmxapi.com/v1")
+        
         self.path = path
         # api keys
-
+        self.openai_api_key = openai_api_key
+        self.llm =  ChatOpenAI(model="gpt-4o-2024-11-20",api_key=self.openai_api_key,
+             base_url="https://www.dmxapi.com/v1")
     def _run(self, query ) -> str:
        
         loader = PyPDFLoader(self.path)  
@@ -61,7 +64,7 @@ class pdfreader(BaseTool):
         
         text_splitter = CharacterTextSplitter(chunk_size=6000, chunk_overlap=1000)
         docs = text_splitter.split_documents(documents) 
-        embeddings =  OpenAIEmbeddings(model="text-embedding-3-large",api_key='sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik',
+        embeddings =  OpenAIEmbeddings(model="text-embedding-3-large",api_key=self.openai_api_key,
              base_url="https://www.dmxapi.com/v1")
 
        

@@ -21,6 +21,7 @@ conda create --name tellagent python=3.11
 conda activate tellagent
 conda install pip
 pip install -r requirements.txt
+playwright install chromium
 ```
 
 
@@ -48,9 +49,27 @@ Note❗❗： This package does not contain all the tools described in paper, so
 
 ## 🔑Usage
 
+First set up your API keys in your environment.
+
+```
+export OPENAI_API_KEY=your-openai-api-key
+export SERP_API_KEY=your-serpapi-api-key[option]
+```
+
+or set api_keys as the input of agent
+
+```
+api_keys = {"SERP_API_KEY" :  None[option],
+			"OPENAI_API_KEY": your-openai-api-key,
+			"CHEMSPACE_API_KEY": None[option],
+			"SEMANTIC_SCHOLAR_API_KEY": None[option]}
+```
+
 ```
 from TeLLAgent import TeLLAgent
-agent = TeLLAgent(model1="DeepSeek-R1",model2="DeepSeek-V3", temp=0.1, streaming=False,image_path ='...', file_path = '...')
+agent = TeLLAgent(model1="DeepSeek-R1",model2="DeepSeek-V3", temp=0.1, 						OPENAI_API_KEY = your-openai-api-key, streaming=True,image_path ='...', 
+		file_path = '...', api_keys = api_keys[option])
+
 agent.run("The history and development of Y6.")
 ```
 
@@ -63,6 +82,8 @@ agent.run("The history and development of Y6.")
 ![image-20250408162706773](Fig/huggingface.jpg)
 
 ***The TeLLAgent is available at HuggingFace. Some tools described in the paper are not availbale because of API usage restrictions.***
+
+It will take some time, since it is running on a cpu.
 
 ## 🪔Demo
 

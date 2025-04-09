@@ -18,14 +18,14 @@ class codewriter(BaseTool):
         "Useful to answer questions that require writing codes "
         "return the usage and instruction of codes"
     )
-
+    openai_api_key: str = None
     llm: BaseLanguageModel = None
-    def __init__(self):
+    def __init__(self, openai_api_key):
         super().__init__()
-        self.llm =ChatOpenAI(model="gpt-4o-2024-11-20",api_key='sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik',
+        
+        self.openai_api_key = openai_api_key
+        self.llm =ChatOpenAI(model="gpt-4o-2024-11-20",api_key=self.openai_api_key,
              base_url="https://www.dmxapi.com/v1")
-        # api keys
-
     def _run(self, query) -> str:
         messages = [
             SystemMessage(content="You are an expert at writing code, write the corresponding code based on the inputs"),
