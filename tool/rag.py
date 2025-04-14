@@ -18,21 +18,10 @@ from langchain import PromptTemplate
 from langchain import HuggingFacePipeline
 
 from langchain.base_language import BaseLanguageModel
-
-
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.document_loaders import UnstructuredMarkdownLoader, UnstructuredURLLoader
 from langchain.chains import LLMChain, SimpleSequentialChain, RetrievalQA, ConversationalRetrievalChain
 
-from langchain.document_loaders import PyPDFDirectoryLoader
-import warnings
-
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.vectorstores import Milvus
-from langchain.document_loaders import TextLoader
-from langchain.document_loaders import PyPDFLoader
 from langchain_openai import ChatOpenAI
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 from torch import cuda, bfloat16
 device = f'cuda:{cuda.current_device()}' if cuda.is_available() else 'cpu'
 from langchain_openai import OpenAIEmbeddings 

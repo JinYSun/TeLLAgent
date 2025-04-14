@@ -14,9 +14,8 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain.base_language import BaseLanguageModel
 from langchain.text_splitter import CharacterTextSplitter
  
-from langchain.document_loaders import TextLoader
-from langchain.document_loaders import PyPDFLoader
-from langchain.vectorstores import FAISS
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
 

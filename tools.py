@@ -1,6 +1,6 @@
 import os
 
-from langchain import agents
+from langchain_community.agent_toolkits.load_tools import load_tools
 from langchain.base_language import BaseLanguageModel
 
 from tool import *
@@ -18,7 +18,7 @@ def make_tools(llm: BaseLanguageModel, api_keys: dict = {}, verbose=True,  image
         "SEMANTIC_SCHOLAR_API_KEY"
     )
     
-    all_tools = agents.load_tools(
+    all_tools = load_tools(
         [
             #"python_repl",
             # "ddg-search",

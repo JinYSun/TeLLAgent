@@ -122,11 +122,11 @@ class TeLLAgent:
         else: 
             prompt = str(' ' + outputs["input"] + ' ' + outputs["intermediate_steps"][0][0].log.split('Action:')[0])
             outputs = self.agent_executor2.invoke( {"input": prompt})
-        return outputs['output'] 
+        return outputs 
     
 if __name__ == '__main__':
         agent = TeLLAgent( temp=0.1, streaming=  True,
                            openai_api_key ='sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik',
                            image_path= r"..." ,file_path = r"..." )
-        A = agent.run(r"""Predict the PCE OF Donor PM6""")
+        A = agent.run(r"""Predict the PCE and basic properties OF Donor PM6""")
         

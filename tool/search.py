@@ -2,7 +2,7 @@ import os
 import re
 
 import langchain
- 
+from paperqa import Docs, Settings
 import paperqa
 import paperscraper
 from langchain_community.utilities import SerpAPIWrapper
@@ -63,18 +63,15 @@ def paper_search(llm, query, semantic_scholar_api_key=None):
     papers = paper_scraper(search, pdir=f"query/{re.sub(' ', '', search)}", semantic_scholar_api_key=semantic_scholar_api_key)
     return papers
 
-
 def scholar2result_llm(llm, query, k=5, max_sources=2, openai_api_key=None, semantic_scholar_api_key=None):
     """Useful to answer questions that require
     technical knowledge. Ask a specific question."""
     papers = paper_search(llm, query, semantic_scholar_api_key=semantic_scholar_api_key)
     if len(papers) == 0:
         return "Not enough papers found"
-    docs = paperqa.Docs(
-        llm=llm,
-        summary_llm=llm,
-        embeddings=OpenAIEmbeddings(openai_api_key=openai_api_key),
-    )
+    docs = Docs()
+    settings = Settings()
+    settings.llm = llm
     not_loaded = 0
     for path, data in papers.items():
         try:
@@ -87,9 +84,12 @@ def scholar2result_llm(llm, query, k=5, max_sources=2, openai_api_key=None, sema
     else:
         print(f"\nFound {len(papers.items())} papers and loaded all of them.")
 
-    answer = docs.query(query, k=k, max_sources=max_sources).formatted_answer
+      
+    answer =   docs.aquery(
+    "What manufacturing challenges are unique to bispecific antibodies?",
+    settings= settings,
+)
     return answer
-
 
 class LiteratureSearch(BaseTool):
     name: str = "LiteratureSearch"

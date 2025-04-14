@@ -1,5 +1,7 @@
 # 🤖**TeLLAgent**👑
 
+------
+
 ### **<u>** A Two-Agent, Tool-Enhanced Large Language Model Framework for Autonomous Design and Discovery of Organic Materials**</u>**
 
 ![overview](Fig/overview.jpg)
@@ -45,7 +47,7 @@ url7 = r"https://github.com/JinYSun/TeLLAgent/releases/download/V1.0.0/lumo.dat"
 wget.download(url7,"tool/orbital/lumo.dat")
 ```
 
-Note❗❗： This package does not contain all the tools described in paper, some tools should be downloaded before using.
+Note❗❗： This package does not contain all the TRAINed tools described in paper, some tools should be downloaded before using.
 
 ## 🔑Usage
 
