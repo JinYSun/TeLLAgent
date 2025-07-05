@@ -3,6 +3,7 @@ import re
 
 import langchain
 from paperqa import Docs, Settings
+import asyncio
 import paperqa
 import paperscraper
 from langchain_community.utilities import SerpAPIWrapper
@@ -12,7 +13,9 @@ from langchain_openai import OpenAIEmbeddings
 from pypdf.errors import PdfReadError
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem
- 
+import nest_asyncio
+from langchain_openai import ChatOpenAI
+nest_asyncio.apply() 
 def is_smiles(text):
     try:
         m = Chem.MolFromSmiles(text, sanitize=False)
@@ -58,12 +61,13 @@ def paper_search(llm, query, semantic_scholar_api_key=None):
     query_chain = langchain.chains.llm.LLMChain(llm=llm, prompt=prompt)
     if not os.path.isdir("./query"):  # todo: move to ckpt
         os.mkdir("query/")
-    search = query_chain.run(query)
+    search = query_chain.invoke(query)
     print("\nSearch:", search)
-    papers = paper_scraper(search, pdir=f"query/{re.sub(' ', '', search)}", semantic_scholar_api_key=semantic_scholar_api_key)
+    papers = paper_scraper(search['text'],   semantic_scholar_api_key=semantic_scholar_api_key)
     return papers
 
-def scholar2result_llm(llm, query, k=5, max_sources=2, openai_api_key=None, semantic_scholar_api_key=None):
+
+async def scholar2result_llm(llm, query, k=5, max_sources=2, openai_api_key=None, semantic_scholar_api_key=None):
     """Useful to answer questions that require
     technical knowledge. Ask a specific question."""
     papers = paper_search(llm, query, semantic_scholar_api_key=semantic_scholar_api_key)
@@ -72,10 +76,11 @@ def scholar2result_llm(llm, query, k=5, max_sources=2, openai_api_key=None, sema
     docs = Docs()
     settings = Settings()
     settings.llm = llm
+    
     not_loaded = 0
     for path, data in papers.items():
         try:
-            docs.add(path, data["citation"])
+            await docs.aadd(path)
         except (ValueError, FileNotFoundError, PdfReadError):
             not_loaded += 1
 
@@ -85,11 +90,9 @@ def scholar2result_llm(llm, query, k=5, max_sources=2, openai_api_key=None, sema
         print(f"\nFound {len(papers.items())} papers and loaded all of them.")
 
       
-    answer =   docs.aquery(
-    "What manufacturing challenges are unique to bispecific antibodies?",
-    settings= settings,
-)
-    return answer
+    answer =  await docs.aquery(query)
+    return answer.answer
+
 
 class LiteratureSearch(BaseTool):
     name: str = "LiteratureSearch"
@@ -104,27 +107,30 @@ class LiteratureSearch(BaseTool):
 
     def __init__(self, llm, openai_api_key, semantic_scholar_api_key):
         super().__init__()
-        self.llm = llm
+        
         # api keys
         self.openai_api_key = openai_api_key
         self.semantic_scholar_api_key = semantic_scholar_api_key
-
+        self.llm = ChatOpenAI(model="gpt-4o-2024-11-20",openai_api_key=self.openai_api_key,
+             base_url=os.getenv("OPENAI_API_BASE"))
     def _run(self, query) -> str:
-        return scholar2result_llm(
+        os.environ["OPENAI_API_KEY"] = self.openai_api_key
+        os.environ["OPENAI_API_BASE"] = os.getenv("OPENAI_API_BASE")
+        return asyncio.run(scholar2result_llm(
             self.llm,
             query,
             openai_api_key=self.openai_api_key,
             semantic_scholar_api_key=self.semantic_scholar_api_key
-        )
+        ))
 
     async def _arun(self, query) -> str:
         """Use the tool asynchronously."""
         raise NotImplementedError("this tool does not support async")
 
-def web_search(keywords, serp_api_key, search_engine="google"):
+def web_search(keywords, search_engine="google"):
     try:
         return SerpAPIWrapper(
-            serpapi_api_key=serp_api_key, search_engine=search_engine
+            serpapi_api_key=os.getenv("SERP_API_KEY"), search_engine=search_engine
         ).run(keywords)
     except:
         return "No results, try another search"
@@ -147,9 +153,7 @@ class WebSearch(BaseTool):
             return (
                 "No SerpAPI key found. This tool may not be used without a SerpAPI key."
             )
-        return web_search(query, serp_api_key = self.serp_api_key)
+        return web_search(query)
 
     async def _arun(self, query: str) -> str:
         raise NotImplementedError("Async not implemented")
-
- 

@@ -63,7 +63,7 @@ class donor_predictor(BaseTool):
 class dap_predictor(BaseTool):
     name:str  = "dap_predictor"
     description :str = (
-        "Input SMILES of D/A pairs(separated by '.') , returns the performance of the D/A pairs ."
+        "Input SMILES of D/A pairs in order of acceptor and then donor(separated by '.') , returns the performance of the D/A pairs ."
     )
 
 

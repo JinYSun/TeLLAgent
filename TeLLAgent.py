@@ -16,7 +16,7 @@ from langchain_ollama import OllamaLLM
 import base64
 from io import BytesIO
 from PIL import Image
- 
+import os
 from langchain_openai import ChatOpenAI , OpenAI
 from langchain.agents import load_tools, initialize_agent, AgentType
 from langchain.llms import OpenAI
@@ -42,9 +42,9 @@ max_tokens = 5000,
             temperature = 0.1,
             
             timeout=1000,
-            base_url="https://www.dmxapi.com/v1",
+            base_url=os.getenv("OPENAI_API_BASE"),
             callbacks=[StreamingStdOutCallbackHandler()],
-            openai_api_key=api_key, 
+            openai_api_key=api_key, max_tokens = 5000,
             )
     elif model.startswith("llama") :
             llm = OllamaLLM(model=model,
@@ -59,8 +59,8 @@ class TeLLAgent:
     def __init__(
         self,
         tools=None,
-        model1: str = "deepseek-ai/DeepSeek-R1",
-        model2: str = "deepseek-ai/DeepSeek-V3",
+        model1: str = "deepseek-r1-250528",
+        model2: str = "deepseek-v3-241226",
         tools_model="gpt-4o-2024-11-20",
         temp=0.1,
         max_iterations=50,
@@ -96,7 +96,7 @@ class TeLLAgent:
                 format_instructions=FORMAT_INSTRUCTIONS,
                 question_prompt=QUESTION_PROMPT1, return_intermediate_steps=True ,handle_parsing_errors=True 
             ),
-            verbose=True,
+            verbose=False,
             max_iterations=1 , return_intermediate_steps=True, handle_parsing_errors=True 
         )
         self.agent_executor2 = RetryAgentExecutor.from_agent_and_tools(
@@ -116,17 +116,24 @@ class TeLLAgent:
     def run(self, prompt):
         prompt = prompt + ' ' + str(self.file_path) + ' ' + str(self.image_path)
         outputs = self.agent_executor1.invoke( {"input": prompt})
+        
         if outputs["intermediate_steps"] ==[]:
             prompt = str(' ' +outputs["input"]+ ' ' + outputs["output"].split('Action:')[0].split('Final Answer:')[0] )
+            print (prompt)
             outputs = self.agent_executor2.invoke( {"input":prompt })            
         else: 
             prompt = str(' ' + outputs["input"] + ' ' + outputs["intermediate_steps"][0][0].log.split('Action:')[0])
+            print (prompt)
             outputs = self.agent_executor2.invoke( {"input": prompt})
         return outputs 
     
 if __name__ == '__main__':
+        os.environ["OPENAI_API_BASE"] =None
+        os.environ["OPENAI_API_KEY"] = None
+        os.environ["SERP_API_KEY"] = None
+        os.environ["SEMANTIC_SCHOLAR_API_KEY"] = None
         agent = TeLLAgent( temp=0.1, streaming=  True,
-                           openai_api_key ='sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik',
-                           image_path= r"..." ,file_path = r"..." )
-        A = agent.run(r"""Predict the PCE and basic properties OF Donor PM6""")
+                           openai_api_key =os.getenv("OPENAI_API_KEY"),
+                           image_path= r".." ,file_path = r"..." )
+        A = agent.run(r""" The history of Y6""")
         

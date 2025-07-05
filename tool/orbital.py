@@ -5,15 +5,24 @@ Created on Wed Oct 30 09:14:55 2024
 @author: BM109X32G-10GPU-02
 """
 
+
+from sklearn.metrics import confusion_matrix
  
 import numpy as np
 from rdkit.Chem import AllChem
-  
+from sklearn.datasets import make_blobs
+import json
+import numpy as np
+import math
+ 
+from scipy import sparse
+from sklearn.metrics import median_absolute_error,r2_score, mean_absolute_error,mean_squared_error
 from langchain.tools import BaseTool
+import pandas as pd
  
 from rdkit import Chem
 import pickle
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import GradientBoostingRegressor
  
 
 def split_string(string):
@@ -52,11 +61,10 @@ def main(sm):
         targets = np.asarray(targets)
         X_test=features
         Y_test=targets
-        n_features=10
-        
-        model = RandomForestRegressor(n_estimators=100)   
-        load_homo = pickle.load(open(r"tool/orbital/homo.pkl", 'rb'))
-        load_lumo = pickle.load(open(r"tool/orbital/lumo.pkl", 'rb'))
+ 
+        model = GradientBoostingRegressor()   
+        load_homo = pickle.load(open(r"tool/orbital/homo.dat", 'rb'))
+        load_lumo = pickle.load(open(r"tool/orbital/lumo.dat",'rb'))
      #   model = load_model('C:/Users/sunjinyu/Desktop/FingerID Reference/drug-likeness/CNN/single_model.h5')
         Y_homo= load_homo.predict(X_test)
         Y_lumo = load_lumo.predict(X_test)

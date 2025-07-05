@@ -26,12 +26,12 @@ def make_tools(llm: BaseLanguageModel, api_keys: dict = {}, verbose=True,  image
             # "human"
         ]
     )
-
+ 
     all_tools += [
        # browseruse(openai_api_key),
         
         rag(openai_api_key),
-        codewriter(openai_api_key),
+        codewriter(llm=llm ,openai_api_key=  openai_api_key),
         graphconverter(),
         Query2SMILES(chemspace_api_key),
         Mol2SMILES(chemspace_api_key) ,
@@ -60,7 +60,7 @@ def make_tools(llm: BaseLanguageModel, api_keys: dict = {}, verbose=True,  image
     ]
         
     if serp_api_key:
-        all_tools += [WebSearch(serp_api_key, openai_api_key)
+        all_tools += [WebSearch(serp_api_key)
     ]
     if image_path is not None:
             all_tools += [Imageanalysis(image_path, openai_api_key),

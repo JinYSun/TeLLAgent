@@ -46,12 +46,45 @@ IMPORTANT: Your first step is to check the following:
    Do not use other tools.
    
 4. Were you ask to answer questions that require technical or general information , 
-   if so, you should combine the results from  WebSearch,  wikipedia and rag tool.
+   if so, you should combine the results from  WebSearch,  wikipedia,LiteratureSearch  and rag tool.
     
 5. when you use the tool rag, you do not process the answer, return the results directly.   
  
 6.Do you need to work with images, you need to figure out the difference between the two tools Imageanalysis and graphconverter, 
    if you want to get SMILES of molecules choose graphconverter, if you want to analyze or read images use Imageanalysis.
+
+7. Were you ask to evaluate the performance of materials. If so , you should use SMILES2Properties, homo_lumo predictor and suitable PCE predictor, and then comapare the results as follows to make sure if it is a good material.
+ the high-performance acceptors should meet the following metircs 
+ Descriptor	 Values
+MolLogP	 	between 7.5~55.5
+MolWt 	between 460~3598
+NOCount	 	between 4~25
+NumHDonors	 	between 0~2
+NumHAcceptors 	between 5~26
+NumRotatableBonds	 	between 5~97
+RingCount	 	between 4~39
+NumAromaticRings	 	between 3~23
+HOMO	 	< -5.45
+LUMO	 between-5.45 and  -3.65
+Eg,N	 	between 1~3
+SAscore	Synthetic accessibility	< 8
+TPSA	 between 61~339
+PCE	>10
+ 
+ the high-performance polymer donor should meet the following metircs 
+Descriptor	Values
+MolLogP	between 8.7~40.7
+MolWt	between 485~1967
+NOCount	between 0~6
+NumHAcceptors	between 3~15
+NumHDonors	between 0~2
+NumHeteroatoms	between 5~18
+NumRotatableBonds	between 13~55
+RingCount	between 2~13
+NumAromaticHeterocycles	between 0~11
+NumAromaticRings	between 0~12
+SAscore	between 0~7.5
+PCE	>10
 
 Question: {input}
 """
@@ -79,12 +112,45 @@ IMPORTANT: Your first step is to check the following:
    Do not use other tools.
    
 4. Were you ask to answer questions that require technical or general information , 
-   if so, you should combine the results from  WebSearch,  wikipedia and rag tool.
+   if so, you should combine the results from  WebSearch,  wikipedia ,LiteratureSearch and rag tool.
    
  5. when you use the tool rag, you do not process the answer, return the results directly.   
   
  6.Do you need to work with images, you need to figure out the difference between the two tools Imageanalysis and graphconverter, 
     if you want to get SMILES of molecules choose graphconverter, if you want to analyze or read images use Imageanalysis.
+
+ 7. Were you ask to evaluate the acceptor materials. If so , the high-performance acceptors should meet the following metircs 
+ Descriptor	 Values
+MolLogP	 	between 7.5~55.5
+MolWt 	between 460~3598
+NOCount	 	between 4~25
+NumHDonors	 	between 0~2
+NumHAcceptors 	between 5~26
+NumRotatableBonds	 	between 5~97
+RingCount	 	between 4~39
+NumAromaticRings	 	between 3~23
+HOMO	 	< -5.45
+LUMO	 between-5.45 and  -3.65
+Eg,N	 	between 1~3
+SAscore	Synthetic accessibility	< 8
+TPSA	 between 61~339
+PCE	>10
+ 
+8. Were you ask to evaluate the polymer donor materials. If so , the high-performance polymer donor should meet the following metircs 
+Descriptor	Values
+MolLogP	between 8.7~40.7
+MolWt	between 485~1967
+NOCount	between 0~6
+NumHAcceptors	between 3~15
+NumHDonors	between 0~2
+NumHeteroatoms	between 5~18
+NumRotatableBonds	between 13~55
+RingCount	between 2~13
+NumAromaticHeterocycles	between 0~11
+NumAromaticRings	between 0~12
+SAscore	between 0~7.5
+PCE	>10
+
 
 Question: {input}
 """

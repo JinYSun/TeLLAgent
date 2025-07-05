@@ -20,7 +20,7 @@ class graphconverter(BaseTool):
          
         try:
             image_path = str(image_path)
-            SMILES = predict_SMILES(image_path)
+            SMILES = predict_SMILES(image_path, hand_drawn=True)
         except:
                 return 'Please recheck the graph path'
         return SMILES
