@@ -5,11 +5,16 @@ import json
 from typing import Dict, List, Any, Optional
 from langchain_ollama import OllamaLLM
 from langchain_mcp_adapters.client import MultiServerMCPClient
-# Set your OpenAI API key
-os.environ["OPENAI_API_BASE"] = "https://www.dmxapi.com/v1"
-os.environ["OPENAI_API_KEY"] = 'sk-itPrztYm9F6XZZpsBMJB9O7Vq0pYUABVVBSoThuBxEGTnDik'
-os.environ["SERP_API_KEY"] = '3795acda6a74ea15033d34b54eac82982b26f559147d9cf04aca4bfca91c3e9d'
-os.environ["SEMANTIC_SCHOLAR_API_KEY"] = 'ih2U0GIUZn9RMGy8GYgTz0C0ZmIaG4R4ujHZi7d3'
+def load_api_keys(file_path="api.txt"):
+
+    with open(file_path, 'r', encoding='utf-8') as f:
+        exec(f.read(), {}, globals())
+
+    for key, value in globals().items():
+        if not key.startswith('__') and isinstance(value, str):
+            os.environ[key] = value
+
+load_api_keys("api.txt")
 import langchain
 from typing import Annotated, List
 from pathlib import Path
@@ -846,47 +851,47 @@ async def run(query: str, image_path: str = "", file_path: str = ""):
         {
             "property": {
                 "command": "python",
-                "args": [r"server\property.py"],
+                "args": [r"tool\property.py"],
                 "transport": "stdio",
             },
             "search": {
                 "command": "python",
-                "args": [r"server\search.py"],
+                "args": [r"tool\search.py"],
                 "transport": "stdio",
             },
             "rag": {
                 "command": "python",
-                "args": [r"server\rag.py"],
+                "args": [r"tool\rag.py"],
                 "transport": "stdio",
             },
             "imageanalysis": {
                 "command": "python",
-                "args": [r"server\ImageAnalysis.py"],
+                "args": [r"tool\ImageAnalysis.py"],
                 "transport": "stdio",
             },
             "converters": {
                 "command": "python",
-                "args": [r"server\converters.py"],
+                "args": [r"tool\converters.py"],
                 "transport": "stdio",
             },
             "coder": {
                 "command": "python",
-                "args": [r"server\coder.py"],
+                "args": [r"tool\coder.py"],
                 "transport": "stdio",
             },
             "orbital": {
                 "command": "python",
-                "args": [r"server\orbital.py"],
+                "args": [r"tool\orbital.py"],
                 "transport": "stdio",
             },
             "pce": {
                 "command": "python",
-                "args": [r"server\PCE.py"],
+                "args": [r"tool\PCE.py"],
                 "transport": "stdio",
             },
             "pdfreader": {
                 "command": "python",
-                "args": [r"server\pdfreader.py"],
+                "args": [r"tool\pdfreader.py"],
                 "transport": "stdio",
             },
         }
@@ -1077,7 +1082,7 @@ if __name__ == '__main__':
     try:
         print("\n🔄 Starting main execution...")
          
-        final_result, trace = asyncio.run(run(''' Generate a donor with PCE = 12% and give all its properties. Then, ask human to give you three acceptors ,give me the best match donor/acceptor pairs.
+        final_result, trace = asyncio.run(run(''' The history of Y6
 ''', image_path=r"", file_path=r""))
 
         print("\n" + "=" * 60)

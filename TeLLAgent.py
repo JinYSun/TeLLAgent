@@ -27,7 +27,25 @@ import asyncio
 import datetime
 import hashlib
 from collections import deque
+import os
 
+def load_api_keys(file_path='api.txt'):
+     
+        with open(file_path, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if line and not line.startswith('#'):  
+                    key, value = line.split('=', 1)
+                    key = key.strip()
+                    value = value.strip()
+    
+                    if value == 'None':
+                        continue
+                    
+                    os.environ[key] = value
+                    print(f" {key}")
+  
+load_api_keys("api.txt")
 class ReasoningTracker:
     """Enhanced reasoning tracker with better loop detection and performance optimization."""
     
@@ -481,12 +499,11 @@ class TeLLAgent:
                     },
                     goto="supervisor",
                 )
-            
-            # 调用工具代理
+             
             result = enhanced_tool_agent.invoke(state)
             final_message = result["messages"][-1].content if result.get("messages") else "No result"
             
-            # 更新累积结果
+            
             accumulated_results = state.get("accumulated_results", []) + [final_message]
             
             return Command(
@@ -500,11 +517,11 @@ class TeLLAgent:
 
         # Create supervisor with result preservation
         def enhanced_supervisor_node(state: State) -> Command[Literal["tool_agent", "__end__"]]:
-            # 检查停止条件
+            
             should_stop, stop_reason = self.reasoning_tracker.should_stop_iteration(self.max_iterations)
             if should_stop:
                 self.reasoning_tracker.add_reasoning_step("supervisor", "force_stop", f"Force stop: {stop_reason}")
-                # 保留最终结果
+                 
                 final_result = state.get("final_result") or state.get("accumulated_results", ["No results"])[-1]
                 return Command(
                     goto=END, 
@@ -515,7 +532,7 @@ class TeLLAgent:
                     }
                 )
             
-            # 准备消息
+            
             messages = [{"role": "system", "content": f"""{prompt1}
 
 ENHANCED STOPPING CRITERIA (CRITICAL):
@@ -524,8 +541,7 @@ ENHANCED STOPPING CRITERIA (CRITICAL):
 - Current iteration: {self.reasoning_tracker.iteration_count}/{self.max_iterations}
 - Look for completion signals in the recent messages
 """}] + state["messages"]
-            
-            # 添加上下文
+             
             iteration_context = f"""
 CURRENT CONTEXT:
 - Iteration: {self.reasoning_tracker.iteration_count}/{self.max_iterations}
@@ -581,7 +597,7 @@ CURRENT CONTEXT:
                 if goto == "FINISH" or confidence < 0.3 or self.reasoning_tracker.iteration_count >= self.max_iterations - 1:
                     self.reasoning_tracker.add_reasoning_step("supervisor", "task_completion", 
                                                            f"Completing task: {goto}, confidence: {confidence}")
-                    # 保留最终结果
+                     
                     final_result = state.get("final_result") or "Task completed"
                     return Command(
                         goto=END, 
@@ -624,13 +640,13 @@ CURRENT CONTEXT:
             self.reasoning_tracker.add_reasoning_step("tool_team", "delegation", 
                                                      f"Tool team called (iteration {self.reasoning_tracker.iteration_count})")
             
-            # 调用基础图并保留完整状态
+             
             response = basic_graph.invoke({
                 "messages": state["messages"],
                 "accumulated_results": state.get("accumulated_results", [])
             })
             
-            # 提取最终结果
+            
             final_content = response.get("final_result") or (
                 response["messages"][-1].content if response.get("messages") else "Tool team completed"
             )
@@ -638,7 +654,7 @@ CURRENT CONTEXT:
             self.reasoning_tracker.add_reasoning_step("tool_team", "completed", 
                                                      f"Tool team completed: {final_content[:100]}...")
             
-            # 检查完成信号
+        
             if self.reasoning_tracker.has_task_completion_signals(final_content):
                 self.reasoning_tracker.add_reasoning_step("tool_team", "completion_signal_detected", 
                                                          "Task completion signal detected in tool team result")
@@ -652,7 +668,7 @@ CURRENT CONTEXT:
                 goto="supervisor",
             )
 
-        # Build super graph with result preservation
+       
         def super_supervisor_node(state: State) -> Command[Literal["tool_team", "__end__"]]:
             should_stop, stop_reason = self.reasoning_tracker.should_stop_iteration(self.max_iterations)
             if should_stop:
@@ -667,7 +683,7 @@ CURRENT CONTEXT:
                     }
                 )
             
-            # 准备消息进行决策
+             
             messages = [{"role": "system", "content": f"""{prompt1}
 
 TEAM COORDINATION CRITERIA:
@@ -767,7 +783,7 @@ TEAM COORDINATION CRITERIA:
         recursion_limit = min(200, self.max_iterations * 10)
         
         try:
-            # 执行图并收集所有步骤的结果
+            
             final_state = None
             for step_result in graph.stream(
                 {
@@ -785,25 +801,23 @@ TEAM COORDINATION CRITERIA:
                 # 保存每个步骤的结果
                 final_result = step_result
                 final_state = step_result
-                
-                # 提取实际的工具执行结果
+                 
                 for node_name, node_data in step_result.items():
                     if isinstance(node_data, dict):
-                        # 检查是否有final_result字段
+                      
                         if 'final_result' in node_data and node_data['final_result']:
                             final_answer = node_data['final_result']
                             self.reasoning_tracker.add_reasoning_step("system", "result_captured", 
                                                                      f"Captured result from {node_name}: {final_answer[:100]}...")
-                        
-                        # 检查accumulated_results
+                         
                         if 'accumulated_results' in node_data and node_data['accumulated_results']:
                             accumulated_results = node_data['accumulated_results']
                         
-                        # 检查消息内容
+                       
                         if 'messages' in node_data and node_data['messages']:
                             for msg in node_data['messages']:
                                 if hasattr(msg, 'content') and msg.content and msg.name in ['tool_agent', 'tool_team']:
-                                    # 这是来自工具执行的实际结果
+                                     
                                     content = msg.content
                                     if not content.startswith("Task stopped") and not content.startswith("Error"):
                                         final_answer = content
@@ -818,7 +832,7 @@ TEAM COORDINATION CRITERIA:
             
             # 构建最终结果
             if final_answer:
-                # 有实际的工具执行结果
+                 
                 result = {
                     "final_answer": final_answer,
                     "execution_status": "completed",
@@ -826,7 +840,7 @@ TEAM COORDINATION CRITERIA:
                     "raw_final_state": final_state
                 }
             elif accumulated_results:
-                # 使用累积的结果
+           
                 result = {
                     "final_answer": accumulated_results[-1],
                     "execution_status": "completed", 
@@ -834,10 +848,10 @@ TEAM COORDINATION CRITERIA:
                     "raw_final_state": final_state
                 }
             else:
-                # 回退到原始结果格式，但尝试提取有用信息
+                
                 result = final_result
                 if final_result:
-                    # 尝试从原始结果中提取有用信息
+                   
                     extracted_content = self._extract_meaningful_content(final_result)
                     if extracted_content:
                         result = {
@@ -860,7 +874,7 @@ TEAM COORDINATION CRITERIA:
         return result
     
     def _extract_meaningful_content(self, result: Any) -> Optional[str]:
-        """尝试从结果中提取有意义的内容."""
+ 
         try:
             if isinstance(result, dict):
                 for node_name, node_data in result.items():
@@ -870,10 +884,10 @@ TEAM COORDINATION CRITERIA:
                             for msg in messages:
                                 if hasattr(msg, 'content') and msg.content:
                                     content = msg.content
-                                    # 过滤掉控制消息，只保留实际结果
+                                     
                                     if (not content.startswith("Task stopped") and 
                                         not content.startswith("Error") and
-                                        len(content.strip()) > 10):  # 确保内容有意义
+                                        len(content.strip()) > 10):  
                                         return content
             return None
         except:

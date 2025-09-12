@@ -7,7 +7,7 @@ Created on Wed Oct 30 09:14:55 2024
 
 
 from sklearn.metrics import confusion_matrix
- 
+from mcp.server.fastmcp import FastMCP 
 import numpy as np
 from rdkit.Chem import AllChem
 from sklearn.datasets import make_blobs
@@ -23,7 +23,8 @@ import pandas as pd
 from rdkit import Chem
 import pickle
 from sklearn.ensemble import GradientBoostingRegressor
- 
+
+mcp =FastMCP("orbital")  
 
 def split_string(string):
     
@@ -71,23 +72,23 @@ def main(sm):
         homo =  float(Y_homo)
         lumo =  float(Y_lumo)
         return homo, lumo
-
-class homolumo_predictor(BaseTool):
-    name: str = "homolumo_predictor"
-    description: str = (
+    
+@mcp.tool(
+    name="homolumo_predictor",           # Custom tool name for the LLM
+    description=  (
         "Input SMILES , returns the HOMO/LUMO  (Highest Occupied Molecular Orbital (HOMO) \
         and  Lowest Unoccupied Molecular Orbital)."
     )
-    def __init__(self):
-        super().__init__()
-    def _run(self, smiles: str) -> str:
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            return "Invalid SMILES string"
-        Y_homo, Y_lumo = main( str(smiles) ) 
-        return f"The HOMO is predicted to be {'{:.2f}'.format(Y_homo)} eV , the LUMO is predicted to be {'{:.2f}'.format(Y_lumo)}  eV" 
+) 
+async def homolumo_predictor(smiles: str) -> str:
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        return "Invalid SMILES string"
+    Y_homo, Y_lumo = main( str(smiles) ) 
+    return f"The HOMO is predicted to be {'{:.2f}'.format(Y_homo)} eV , the LUMO is predicted to be {'{:.2f}'.format(Y_lumo)}  eV" 
  
-    async def _arun(self, smiles: str) -> str:
-        """Use the tool asynchronously."""
-        raise NotImplementedError()
+
+if __name__ =="__main__":
+    mcp.run(transport="stdio")       
+ 
           

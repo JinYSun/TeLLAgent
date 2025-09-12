@@ -4,21 +4,35 @@ Created on Mon Dec 30 22:20:13 2024
 
 @author: BM109X32G-10GPU-02
 """
-from langchain.chains import LLMChain, SimpleSequentialChain, RetrievalQA, ConversationalRetrievalChain
-
+from langchain.chains import   RetrievalQA 
+from mcp.server.fastmcp import FastMCP 
 from langchain import PromptTemplate 
+import os 
  
-from langchain.tools import BaseTool
- 
-from langchain_core.messages import HumanMessage, SystemMessage
-from langchain.base_language import BaseLanguageModel
+  
 from langchain.text_splitter import CharacterTextSplitter
  
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
-
+def load_api_keys(file_path='api.txt'):
+     
+        with open(file_path, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if line and not line.startswith('#'):  
+                    key, value = line.split('=', 1)
+                    key = key.strip()
+                    value = value.strip()
+    
+                    if value == 'None':
+                        continue
+                    
+                    os.environ[key] = value
+                    print(f" {key}")
+  
+load_api_keys("api.txt")
 template = """
 
         You are an expert chemist and your task is to respond to the question or
@@ -34,57 +48,44 @@ template = """
         Answer: 
 
         """
-        
-class pdfreader(BaseTool):
-    name: str = "pdfreader"
-    description: str = (
+mcp =FastMCP("pdfreader") 
+
+@mcp.tool(
+    name="pdfreader",           # Custom tool name for the LLM
+    description=(
 
         "Used to read papers, summarize papers, Q&A based on papers, literature or publication"
-        "Input query , return the response"
+        "Input query and file path , return the response"
     )
-
-    llm: BaseLanguageModel = None
-    path : str = None 
-    return_direct: bool = True
-    openai_api_key: str = None
-    
-    def __init__(self, path , openai_api_key):
-        super().__init__(  )
-        
-        self.path = path
-        # api keys
-        self.openai_api_key = openai_api_key
-        self.llm =  ChatOpenAI(model="deepseek-v3.1-nothinking",api_key=self.openai_api_key,
-             base_url="https://www.dmxapi.com/v1")
-    def _run(self, query ) -> str:
-        try:
-            loader = PyPDFLoader(self.path)  
-            documents = loader.load()  
-            
-            text_splitter = CharacterTextSplitter(chunk_size=6000, chunk_overlap=1000)
-            docs = text_splitter.split_documents(documents) 
-            embeddings =  OpenAIEmbeddings(model="text-embedding-3-large",api_key=self.openai_api_key,
-                 base_url="https://www.dmxapi.com/v1")
-    
-           
-            vectorstore = FAISS.from_documents(docs, embeddings)
-            prompt = PromptTemplate(template=template, input_variables=[ "question"])
-            qa_chain = RetrievalQA.from_chain_type(
-                llm= self.llm,
-                chain_type="stuff",
-                retriever=vectorstore.as_retriever(search_kwargs={"k": 2}),
-                return_source_documents=True,
-               chain_type_kwargs={"prompt": prompt},
-            )
-             
-            result = qa_chain.invoke(query)
-            return result['result']
+)
+async def pdfreader(  query , path ) -> str:
          
-        except Exception as e:
-                return "Error: " + str(e)
- 
-    async def _arun(self, query) -> str:
-        """Use the tool asynchronously."""
-        raise NotImplementedError("this tool does not support async")
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        llm = ChatOpenAI(model="deepseek-v3.1",openai_api_key= openai_api_key,
+             base_url=os.getenv("OPENAI_API_BASE"))       
+        loader = PyPDFLoader( path)  
+        documents = loader.load()  
         
+        text_splitter = CharacterTextSplitter(chunk_size=6000, chunk_overlap=1000)
+        docs = text_splitter.split_documents(documents) 
+        embeddings =  OpenAIEmbeddings(model="text-embedding-3-large",api_key= openai_api_key,
+             base_url=os.getenv("OPENAI_API_BASE"))
+
+       
+        vectorstore = FAISS.from_documents(docs, embeddings)
+        prompt = PromptTemplate(template=template, input_variables=[ "question"])
+        qa_chain = RetrievalQA.from_chain_type(
+            llm=  llm,
+            chain_type="stuff",
+            retriever=vectorstore.as_retriever(search_kwargs={"k": 2}),
+            return_source_documents=True,
+           chain_type_kwargs={"prompt": prompt},
+        )
+         
+        result = qa_chain.invoke(query)
+        return result['result']
+        
+if __name__ =="__main__":
+      mcp.run(transport="stdio")       
+   
  

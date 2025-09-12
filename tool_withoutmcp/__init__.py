@@ -6,7 +6,7 @@ from .search import *
 from .PCE import * 
 from .converters import *   
 from .orbital import *
-#from .graphconverter import * 
+from .graphconverter import * 
 from .ImageAnalysis import * 
 from .pdfreader import * 
 from .rag import * 

@@ -3,7 +3,7 @@ import os
 from langchain_community.agent_toolkits.load_tools import load_tools
 from langchain.base_language import BaseLanguageModel
 
-from tool import *
+from tool_withoutmcp import *
 
 
 def make_tools(llm: BaseLanguageModel, api_keys: dict = {}, verbose=True,  image_path = r"...", file_path = r"..."):

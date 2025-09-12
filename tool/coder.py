@@ -4,40 +4,53 @@ Created on Sat Oct 26 15:35:19 2024
 
 @author: BM109X32G-10GPU-02
 """
-
-from langchain_community.embeddings import OllamaEmbeddings
+import os
+ 
 from langchain.tools import BaseTool
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain.base_language import BaseLanguageModel
-
-
-class codewriter(BaseTool):
-    name:str = "codewriter"
-    description:str = (
-        "Useful to answer questions that require writing codes "
-        "return the usage and instruction of codes"
-    )
-    openai_api_key: str = None
-    llm: BaseLanguageModel = None
-    def __init__(self,llm, openai_api_key):
-        super().__init__()
-        
-        self.openai_api_key = openai_api_key
-        self.llm =ChatOpenAI(model="deepseek-v3.1-nothinking",openai_api_key=self.openai_api_key,
-             base_url="https://www.dmxapi.com/v1")
-    def _run(self, query) -> str:
-        messages = [
-            SystemMessage(content="You are an expert at writing code, write the corresponding code based on the inputs"),
-            HumanMessage(content=query),
-        ]
-        llm = self.llm 
-        response =  llm.invoke(messages)
-        return response
-
-    async def _arun(self, query) -> str:
-        """Use the tool asynchronously."""
-        raise NotImplementedError("this tool does not support async")
-        
-
+from mcp.server.fastmcp import FastMCP 
+def load_api_keys(file_path='api.txt'):
+     
+        with open(file_path, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if line and not line.startswith('#'):  
+                    key, value = line.split('=', 1)
+                    key = key.strip()
+                    value = value.strip()
+    
+                    if value == 'None':
+                        continue
+                    
+                    os.environ[key] = value
+                    print(f" {key}")
+  
+load_api_keys("api.txt")
+ 
+mcp =FastMCP("codewriter") 
+@mcp.tool(
+    name="codewriter",           # Custom tool name for the LLM
+    description=  (
+    "Useful to answer questions that require writing codes "
+    "return the usage and instruction of codes"
+    )) 
+async def codewriter( query) -> str:
+    base_url=os.getenv("OPENAI_API_BASE")
+ 
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    llm = ChatOpenAI(model="deepseek-v3.1",openai_api_key= openai_api_key,
+         base_url=base_url)
+    messages = [
+        SystemMessage(content="You are an expert at writing code, write the corresponding code based on the inputs"),
+        HumanMessage(content=query),
+    ]
+    
+    response =  llm.invoke(messages)
+    return response
+ 
+if __name__ =="__main__":
+    mcp.run(transport="stdio")       
+ 
  

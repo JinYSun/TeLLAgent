@@ -108,109 +108,108 @@ def get_selfie_and_smiles_encodings_for_dataset(smiles):
         
             return selfies_list, selfies_alphabet, largest_selfies_len, \
                    smiles_list, smiles_alphabet, largest_smiles_len
-                   
 def generation(value):
- 
-   
-    scaffold = False
-    lstm = False
-    data_name = 'ppcenos'
-    batch_size = 5
-    gen_size = 20
-    vocab_size = 29
-    block_size = 196
-    n_layer = 8
-    n_head = 8
-    n_embd = 256
-    lstm_layers = 2
-    props = ['pce']
-    csv_name = 'ppcenos'
-    
- 
-    context = "[C]"
-    pattern = "(\[[^\]]+]|<|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|\.|=|#|-|\+|\\\\|\/|:|~|@|\?|>|\*|\$|\%[0-9]{2}|[0-9])"
-    regex = re.compile(pattern)
-    
-   
-    if 'moses' in data_name and scaffold:
-        scaffold_max_len = 48
-    elif 'guacamol' in data_name:
-        scaffold_max_len = 107
-    else:
-        scaffold_max_len = 181
-    
- 
-    stoi = json.load(open('tool/comget/' + f'{data_name}.json', 'r'))
-    itos = {i: ch for ch, i in stoi.items()}
-    
-    print(len(itos))
-     
-    num_props = len(props)
-    mconf = GPTConfig(vocab_size, block_size, num_props=num_props,
-                      n_layer=n_layer, n_head=n_head, n_embd=n_embd, 
-                      scaffold=scaffold, scaffold_maxlen=scaffold_max_len,
-                      lstm=lstm, lstm_layers=lstm_layers)
-    model = GPT(mconf)
-    
-    # 加载模型权重
-    model_weight = f'{csv_name}.pt'
-    model.load_state_dict(torch.load('tool/comget/' + model_weight))
-    model.to('cuda')
-    print('Model loaded')
-    
-     
-    gen_iter = math.ceil(gen_size / batch_size)
-    
-    
-    prop2value = {'pce': [float(value)]}  # 需要定义value的值，这里保持原逻辑但需要修正
-    prop_condition = None
-    if len(props) > 0:
-        prop_condition = prop2value['_'.join(props)]
+      
         
-    scaf_condition = None
-    
-    all_dfs = []
-    all_metrics = []
-    count = 0
-    
-    if prop_condition is not None and scaf_condition is None:
-        for c in prop_condition:
-            molecules = []
-            selfies = []
-            count += 1
-            for i in tqdm(range(gen_iter)):
-                x = torch.tensor([stoi[s] for s in regex.findall(context)], 
-                                dtype=torch.long)[None, ...].repeat(batch_size, 1).to('cuda')
-                p = None
-                if len(props) == 1:
-                    p = torch.tensor([c]).repeat(batch_size, 1).to('cuda')
-                else:
-                    p = torch.tensor([c]).repeat(batch_size, 1).unsqueeze(1).to('cuda')
-                sca = None
-                y = sample(model, x, 300, temperature=1.0, sample=True, top_k=10, prop=p, scaffold=sca)
-                for gen_mol in y:
-                    completion = ''.join([itos[int(i)] for i in gen_mol])
-                    completion = completion.replace('<', '')
-                    selfies.append(completion)
-            file = pd.DataFrame(selfies)
-    
-            for ind, i in enumerate(file[0]):
-                smi = sf.decoder(eval(repr(i)))
-                mol = get_mol(smi)
-                if mol:
-                    molecules.append(mol)
-                else:
-                    print(ind)
-                    print(i)
+         scaffold = False
+         lstm = False
+         data_name = 'ppcenos'
+         batch_size = 5
+         gen_size = 20
+         vocab_size = 29
+         block_size = 196
+         n_layer = 8
+         n_head = 8
+         n_embd = 256
+         lstm_layers = 2
+         props = ['pce']
+         csv_name = 'ppcenos'
+         
+      
+         context = "[C]"
+         pattern = "(\[[^\]]+]|<|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|\.|=|#|-|\+|\\\\|\/|:|~|@|\?|>|\*|\$|\%[0-9]{2}|[0-9])"
+         regex = re.compile(pattern)
+         
         
-            print("Valid molecules % = {}".format(len(molecules)))
-        
-            mol_dict = []
-            for i in molecules:
-                mol_dict.append({'molecule': i, 'smiles': Chem.MolToSmiles(i)})
-    
-            results = pd.DataFrame(mol_dict)
-            all_dfs.append(results)
-    
-    results = pd.concat(all_dfs)
-    return results
+         if 'moses' in data_name and scaffold:
+             scaffold_max_len = 48
+         elif 'guacamol' in data_name:
+             scaffold_max_len = 107
+         else:
+             scaffold_max_len = 181
+         
+      
+         stoi = json.load(open('tool/comget/' + f'{data_name}.json', 'r'))
+         itos = {i: ch for ch, i in stoi.items()}
+         
+         print(len(itos))
+          
+         num_props = len(props)
+         mconf = GPTConfig(vocab_size, block_size, num_props=num_props,
+                           n_layer=n_layer, n_head=n_head, n_embd=n_embd, 
+                           scaffold=scaffold, scaffold_maxlen=scaffold_max_len,
+                           lstm=lstm, lstm_layers=lstm_layers)
+         model = GPT(mconf)
+         
+         # 加载模型权重
+         model_weight = f'{csv_name}.pt'
+         model.load_state_dict(torch.load('tool/comget/' + model_weight))
+         model.to('cuda')
+         print('Model loaded')
+         
+          
+         gen_iter = math.ceil(gen_size / batch_size)
+         
+         
+         prop2value = {'pce': [float(value)]}  # 需要定义value的值，这里保持原逻辑但需要修正
+         prop_condition = None
+         if len(props) > 0:
+             prop_condition = prop2value['_'.join(props)]
+             
+         scaf_condition = None
+         
+         all_dfs = []
+         all_metrics = []
+         count = 0
+         
+         if prop_condition is not None and scaf_condition is None:
+             for c in prop_condition:
+                 molecules = []
+                 selfies = []
+                 count += 1
+                 for i in tqdm(range(gen_iter)):
+                     x = torch.tensor([stoi[s] for s in regex.findall(context)], 
+                                     dtype=torch.long)[None, ...].repeat(batch_size, 1).to('cuda')
+                     p = None
+                     if len(props) == 1:
+                         p = torch.tensor([c]).repeat(batch_size, 1).to('cuda')
+                     else:
+                         p = torch.tensor([c]).repeat(batch_size, 1).unsqueeze(1).to('cuda')
+                     sca = None
+                     y = sample(model, x, 300, temperature=1.0, sample=True, top_k=10, prop=p, scaffold=sca)
+                     for gen_mol in y:
+                         completion = ''.join([itos[int(i)] for i in gen_mol])
+                         completion = completion.replace('<', '')
+                         selfies.append(completion)
+                 file = pd.DataFrame(selfies)
+         
+                 for ind, i in enumerate(file[0]):
+                     smi = sf.decoder(eval(repr(i)))
+                     mol = get_mol(smi)
+                     if mol:
+                         molecules.append(mol)
+                     else:
+                         print(ind)
+                         print(i)
+             
+                 print("Valid molecules % = {}".format(len(molecules)))
+             
+                 mol_dict = []
+                 for i in molecules:
+                     mol_dict.append({'molecule': i, 'smiles': Chem.MolToSmiles(i)})
+         
+                 results = pd.DataFrame(mol_dict)
+                 all_dfs.append(results)
+         
+         results = pd.concat(all_dfs)
+         return results
