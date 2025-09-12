@@ -114,6 +114,7 @@ class Mol2SMILES(BaseTool):
         except Exception as e:
             try:
                csv_data = pd.read_csv('tool/dataset.csv',encoding='ISO-8859-1')
+               query= query.upper()
                relevant_rows = csv_data[csv_data['Name']==(query)]
                if not relevant_rows.empty:
                    # Get the most relevant answer (assuming we return the first match)

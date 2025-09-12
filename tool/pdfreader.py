@@ -54,32 +54,34 @@ class pdfreader(BaseTool):
         self.path = path
         # api keys
         self.openai_api_key = openai_api_key
-        self.llm =  ChatOpenAI(model="gpt-4o-2024-11-20",api_key=self.openai_api_key,
+        self.llm =  ChatOpenAI(model="deepseek-v3.1-nothinking",api_key=self.openai_api_key,
              base_url="https://www.dmxapi.com/v1")
     def _run(self, query ) -> str:
-       
-        loader = PyPDFLoader(self.path)  
-        documents = loader.load()  
-        
-        text_splitter = CharacterTextSplitter(chunk_size=6000, chunk_overlap=1000)
-        docs = text_splitter.split_documents(documents) 
-        embeddings =  OpenAIEmbeddings(model="text-embedding-3-large",api_key=self.openai_api_key,
-             base_url="https://www.dmxapi.com/v1")
-
-       
-        vectorstore = FAISS.from_documents(docs, embeddings)
-        prompt = PromptTemplate(template=template, input_variables=[ "question"])
-        qa_chain = RetrievalQA.from_chain_type(
-            llm= self.llm,
-            chain_type="stuff",
-            retriever=vectorstore.as_retriever(search_kwargs={"k": 2}),
-            return_source_documents=True,
-           chain_type_kwargs={"prompt": prompt},
-        )
+        try:
+            loader = PyPDFLoader(self.path)  
+            documents = loader.load()  
+            
+            text_splitter = CharacterTextSplitter(chunk_size=6000, chunk_overlap=1000)
+            docs = text_splitter.split_documents(documents) 
+            embeddings =  OpenAIEmbeddings(model="text-embedding-3-large",api_key=self.openai_api_key,
+                 base_url="https://www.dmxapi.com/v1")
+    
+           
+            vectorstore = FAISS.from_documents(docs, embeddings)
+            prompt = PromptTemplate(template=template, input_variables=[ "question"])
+            qa_chain = RetrievalQA.from_chain_type(
+                llm= self.llm,
+                chain_type="stuff",
+                retriever=vectorstore.as_retriever(search_kwargs={"k": 2}),
+                return_source_documents=True,
+               chain_type_kwargs={"prompt": prompt},
+            )
+             
+            result = qa_chain.invoke(query)
+            return result['result']
          
-        result = qa_chain.invoke(query)
-        return result['result']
-        
+        except Exception as e:
+                return "Error: " + str(e)
  
     async def _arun(self, query) -> str:
         """Use the tool asynchronously."""

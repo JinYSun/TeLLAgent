@@ -1,0 +1,26 @@
+{	"name": "biomarker_log",
+
+	"d_model_name" : "DeepChem/ChemBERTa-10M-MLM",
+	"p_model_name" : "DeepChem/ChemBERTa-10M-MTR",
+	"gpu_ids" : "0",
+	"model_mode" : "test",
+	"load_checkpoint" : "tool/dap/OSC/test.ckpt",
+
+	"prot_maxlength" : 360,
+	"layer_limit" : true,
+
+	"max_epoch": 16,
+	"batch_size": 40,
+	"num_workers": 0,
+
+	"task_name" : "OSC",
+	"lr": 1e-4,
+	"layer_features" : [128, 128, 128, 1],
+	"dropout" : 0.1,
+	"loss_fn" : "MSE",
+
+	"traindata_rate" : 1.0,
+	"pretrained": {"chem":true, "prot":true},
+	"num_seed" : 111
+}
+

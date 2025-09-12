@@ -111,7 +111,7 @@ class LiteratureSearch(BaseTool):
         # api keys
         self.openai_api_key = openai_api_key
         self.semantic_scholar_api_key = semantic_scholar_api_key
-        self.llm = ChatOpenAI(model="gpt-4o-2024-11-20",openai_api_key=self.openai_api_key,
+        self.llm = ChatOpenAI(model="deepseek-v3.1-nothinking",openai_api_key=self.openai_api_key,
              base_url=os.getenv("OPENAI_API_BASE"))
     def _run(self, query) -> str:
         os.environ["OPENAI_API_KEY"] = self.openai_api_key

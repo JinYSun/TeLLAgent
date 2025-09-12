@@ -24,7 +24,7 @@ class codewriter(BaseTool):
         super().__init__()
         
         self.openai_api_key = openai_api_key
-        self.llm =ChatOpenAI(model="gpt-4o-2024-11-20",openai_api_key=self.openai_api_key,
+        self.llm =ChatOpenAI(model="deepseek-v3.1-nothinking",openai_api_key=self.openai_api_key,
              base_url="https://www.dmxapi.com/v1")
     def _run(self, query) -> str:
         messages = [

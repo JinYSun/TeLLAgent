@@ -129,7 +129,7 @@ class molgen(BaseTool):
     name: str = "donorgen"
     description: str = (
 
-        "Useful to generate polymer donor molecules with required PCE. "
+        "Useful to generate polymer donor molecules with required PCE value. "
         "Input the values of PCE , return the SMILES"
     )
  
@@ -139,7 +139,7 @@ class molgen(BaseTool):
         super().__init__(  )
  
 
-    def _run(self, value ) -> str:
+    def _run(self, value: float|int ) -> str:
         try:
             results = generator.generation(value)
             for i in results['smiles']:

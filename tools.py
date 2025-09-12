@@ -22,13 +22,13 @@ def make_tools(llm: BaseLanguageModel, api_keys: dict = {}, verbose=True,  image
         [
             #"python_repl",
             # "ddg-search",
-            "wikipedia",
-            # "human"
+            "wikipedia","human"
+         
         ]
     )
  
     all_tools += [
-       # browseruse(openai_api_key),
+        
         
         rag(openai_api_key),
         codewriter(llm=llm ,openai_api_key=  openai_api_key),
@@ -50,14 +50,14 @@ def make_tools(llm: BaseLanguageModel, api_keys: dict = {}, verbose=True,  image
         
         molgen(),
         dap_predictor(),
-  
+        browseruse(openai_api_key),
     ]
-    if semantic_scholar_api_key:
-        all_tools += [       LiteratureSearch(
-                  llm=llm,
-                  openai_api_key=openai_api_key,
-                  semantic_scholar_api_key=semantic_scholar_api_key        ),
-    ]
+    # if semantic_scholar_api_key:
+    #     all_tools += [       LiteratureSearch(
+    #               llm=llm,
+    #               openai_api_key=openai_api_key,
+    #               semantic_scholar_api_key=semantic_scholar_api_key        ),
+    # ]
         
     if serp_api_key:
         all_tools += [WebSearch(serp_api_key)
