@@ -22,13 +22,13 @@ mcp =FastMCP("pce")
     name="acceptor_predictor",          
     description= (  "Input acceptor SMILES , returns the score(PCE) of the acceptor.") 
 )
-def acceptor_predictor(  smiles: str) -> str:
+def acceptor_predictor(  smiles: str) -> float :
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         return "Invalid SMILES string"
     smiles = Chem.MolToSmiles(mol) 
     pce =RF.main( str(smiles) ) 
-    return f'The power conversion efficiency (PCE) is predicted to be {pce} (predicted by DeepAcceptor)  '  
+    return pce 
  
 @mcp.tool(
     name="donor_predictor",          
