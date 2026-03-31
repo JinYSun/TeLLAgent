@@ -47,6 +47,10 @@ url6 = r"https://github.com/JinYSun/TeLLAgent/releases/download/V1.0.0/homo.dat"
 wget.download(url6,"tool/orbital/homo.dat")
 url7 = r"https://github.com/JinYSun/TeLLAgent/releases/download/V1.0.0/lumo.dat"
 wget.download(url7,"tool/orbital/lumo.dat")
+url8 = r"https://github.com/JinYSun/TeLLAgent/releases/download/V1.0.0/index.pkl"
+wget.download(url8,"tool/rag/index.pkl")
+url9 = r"https://github.com/JinYSun/TeLLAgent/releases/download/V1.0.0/index.faiss"
+wget.download(url9,"tool/rag/index.faiss")
 ```
 TeLLAgent without mcp:
 
@@ -65,6 +69,10 @@ url6 = r"https://github.com/JinYSun/TeLLAgent/releases/download/V1.0.0/homo.dat"
 wget.download(url6,"tool_withoutmcp/orbital/homo.dat")
 url7 = r"https://github.com/JinYSun/TeLLAgent/releases/download/V1.0.0/lumo.dat"
 wget.download(url7,"tool_withoutmcp/orbital/lumo.dat")
+url8 = r"https://github.com/JinYSun/TeLLAgent/releases/download/V1.0.0/index.pkl"
+wget.download(url8,"tool_withoutmcp/rag/index.pkl")
+url9 = r"https://github.com/JinYSun/TeLLAgent/releases/download/V1.0.0/index.faiss"
+wget.download(url9,"tool_withoutmcp/rag/index.faiss")
 ```
 
 
