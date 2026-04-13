@@ -6,7 +6,7 @@ from paperqa import Docs, Settings
 import asyncio
 import paperqa
 import paperscraper
-from langchain_community.utilities import SerpAPIWrapper
+from langchain_google_community import GoogleSearchAPIWrapper
  
  
  
@@ -136,10 +136,10 @@ async def scholar2result_llm(llm, query, k=5, max_sources=2, openai_api_key=None
 
   
 
-def web_search(keywords, search_engine="google"):
+def web_search(keywords,):
     try:
         return SerpAPIWrapper(
-            serpapi_api_key=os.getenv("SERP_API_KEY"), search_engine=search_engine
+            google_api_key=os.getenv("GOOGLE_API_KEY"),google_cse_id=os.getenv("GOOGLE_CSE_ID"), search_engine=search_engine
         ).run(keywords)
     except:
         return "No results, try another search"
@@ -150,10 +150,10 @@ def web_search(keywords, search_engine="google"):
      "Give more detailed information and use more general features to formulate your questions.") # Custom description
 )
 async def WebSearch(  query: str) -> str:
-    serp_api_key = os.getenv("SERP_API_KEY")
-    if not serp_api_key:
+    google_api_key = os.getenv("GOOGLE_API_KEY")
+    if not google_api_key:
         return (
-            "No SerpAPI key found. This tool may not be used without a SerpAPI key."
+            "No google_api_key key found. This tool may not be used without a SerpAPI key."
         )
     return web_search(query)
 
