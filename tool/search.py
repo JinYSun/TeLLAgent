@@ -6,19 +6,14 @@ from paperqa import Docs, Settings
 import asyncio
 import paperqa
 import paperscraper
-from langchain_google_community import GoogleSearchAPIWrapper
- 
- 
- 
+from langchain_community.utilities import SerpAPIWrapper 
 from pypdf.errors import PdfReadError
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem
 import nest_asyncio
- 
 from typing import Any, Dict, List
 import requests
- 
- 
+
 mcp =FastMCP("search") 
 from langchain.chains import LLMChain
 nest_asyncio.apply() 
@@ -136,10 +131,10 @@ async def scholar2result_llm(llm, query, k=5, max_sources=2, openai_api_key=None
 
   
 
-def web_search(keywords,):
+def web_search(keywords, search_engine="google"):
     try:
         return SerpAPIWrapper(
-            google_api_key=os.getenv("GOOGLE_API_KEY"),google_cse_id=os.getenv("GOOGLE_CSE_ID"), search_engine=search_engine
+            serpapi_api_key=os.getenv("SERP_API_KEY"), search_engine=search_engine
         ).run(keywords)
     except:
         return "No results, try another search"
@@ -150,10 +145,10 @@ def web_search(keywords,):
      "Give more detailed information and use more general features to formulate your questions.") # Custom description
 )
 async def WebSearch(  query: str) -> str:
-    google_api_key = os.getenv("GOOGLE_API_KEY")
-    if not google_api_key:
+    serp_api_key = os.getenv("SERP_API_KEY")
+    if not serp_api_key:
         return (
-            "No google_api_key key found. This tool may not be used without a SerpAPI key."
+            "No SerpAPI key found. This tool may not be used without a SerpAPI key."
         )
     return web_search(query)
 
@@ -249,23 +244,18 @@ class WikipediaSearcher:
 @mcp.tool()
 def wikipedia_search(query: str) -> str:
     """
-    Search Wikipedia and return the full article content of the most relevant entry
-    
+    Search Wikipedia and return the full article content of the most relevant entry    
     Parameters:
-    - query: Search keyword
-    
+    - query: Search keyword    
     Returns:
     Full article content in plain text for the most relevant Wikipedia entry
     """
     searcher = WikipediaSearcher()
     try:
-        result = searcher.get_best_match(query)
-        
+        result = searcher.get_best_match(query)        
         if not result.get("found"):
-            return f"Error: No Wikipedia entries found for '{query}'. {result.get('error', '')}"
-        
-        return result["content"]
-        
+            return f"Error: No Wikipedia entries found for '{query}'. {result.get('error', '')}"        
+        return result["content"]        
     finally:
         searcher.close() 
         
