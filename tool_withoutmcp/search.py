@@ -127,26 +127,14 @@ class LiteratureSearch(BaseTool):
         """Use the tool asynchronously."""
         raise NotImplementedError("this tool does not support async")
 
-def web_search(keywords,):
+def web_search(keywords, search_engine="google"):
     try:
         return SerpAPIWrapper(
-            google_api_key=os.getenv("GOOGLE_API_KEY"),google_cse_id=os.getenv("GOOGLE_CSE_ID"), search_engine=search_engine
+            serpapi_api_key=os.getenv("SERP_API_KEY"), search_engine=search_engine
         ).run(keywords)
     except:
         return "No results, try another search"
 
-@mcp.tool(
-    name="WebSearch",           # Custom tool name for the LLM
-    description= ( "Input a specific question, returns an answer from web search. "
-     "Give more detailed information and use more general features to formulate your questions.") # Custom description
-)
-async def WebSearch(  query: str) -> str:
-    google_api_key = os.getenv("GOOGLE_API_KEY")
-    if not google_api_key:
-        return (
-            "No google_api_key key found. This tool may not be used without a SerpAPI key."
-        )
-    return web_search(query)
 
 
 class WebSearch(BaseTool):
@@ -157,15 +145,15 @@ class WebSearch(BaseTool):
     )
     serp_api_key: str = None
 
-    def __init__(self, google_api_key: str = None):
+    def __init__(self, serp_api_key: str = None):
         super().__init__()
-        self.google_api_key = google_api_key
+        self.serp_api_key = serp_api_key
 
     def _run(self, query: str) -> str:
-       google_api_key = os.getenv("GOOGLE_API_KEY")
-        if not google_api_key:
+       
+        if not self.serp_api_key:
             return (
-                "No google_api_key key found. This tool may not be used without a SerpAPI key."
+                "No SerpAPI  key found. This tool may not be used without a SerpAPI key."
                 )
         return web_search(query)
 
