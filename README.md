@@ -4,7 +4,7 @@
 
 ### **<u>** TeLLAgent: A Tool-Enhanced Large Language Model-based Agent for Autonomous Design and Discovery of High-Performance Molecules</u>
 
-![overview](Fig/Fig 1.tif)
+![overview](Fig/1.jpg)
 
 ## 😀Motivation
 
