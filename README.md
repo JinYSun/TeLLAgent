@@ -26,7 +26,7 @@ pip install -r requirements.txt
 playwright install chromium
 ```
 
-Two versions of TeLLAgent have been provided, one is based on [MCP](https://github.com/JinYSun/TeLLAgent/blob/main/TeLLAgent_mcp.py), the other is [without MCP](https://github.com/JinYSun/TeLLAgent/blob/main/TeLLAgent.py). 
+Two versions of TeLLAgent have been provided, one is based on [MCP](https://github.com/JinYSun/TeLLAgent/blob/main/TeLLAgent_mcp.py), the other is [without MCP](https://github.com/JinYSun/TeLLAgent/blob/main/TeLLAgent.py) (This framework differs slightly from the MCP format, but this does not affect its performance). 
 
 ## 🎬Preparation
 
